@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.spring.laboratory.Mapper.EmailMapper" >
+    <select id="queryEmail" parameterType="com.spring.laboratory.Entity.Email" resultType="String">
+        select SUBSTRING(email,1,17)
+        from email
+        where email=#{email}
+         group by email
+    </select>
+    <insert id="saveEmail" parameterType="com.spring.laboratory.Entity.Email">
+        insert into
+        email(email)
+        values
+        (#{email})
+    </insert>
+    <select id="querynumber" parameterType="com.spring.laboratory.Entity.Email" resultType="String">
+        select SUBSTRING(number,1,6)
+        from email
+        where email=#{email}
+        group by number
+    </select>
+    <delete id="deleteall" parameterType="com.spring.laboratory.Entity.Email">
+        delete
+        from email
+    </delete>
+
+</mapper>

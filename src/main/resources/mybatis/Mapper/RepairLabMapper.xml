@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.spring.laboratory.Mapper.RepairLabMapper" >
+    <select id="query" resultType="com.spring.laboratory.Entity.RepairLab">
+        SELECT *
+        FROM repairlab
+        ORDER BY uuid DESC
+    </select>
+    <select id="querydoornumber" resultType="Map">
+        SELECT door_number,lab_name,uuid
+        FROM labmanagement
+        ORDER BY door_number ASC
+    </select>
+    <select id="querybydoornumber" resultType="com.spring.laboratory.Entity.RepairLab">
+        SELECT *
+        FROM repairlab
+        WHERE door_number=#{doorNumber}
+        ORDER BY uuid DESC
+    </select>
+    <select id="queryfuzzy" resultType="com.spring.laboratory.Entity.RepairLab" parameterType="java.lang.String">
+        SELECT *
+        FROM repairlab
+        WHERE CONCAT(IFNULL(door_number,''),IFNULL(repair_item,''),
+        IFNULL(fault_phenomenon,''),IFNULL(student_name,''),IFNULL(phone_number,''),IFNULL(repair_status,''))
+        LIKE CONCAT(CONCAT('%',#{doorNumber}),'%')
+        ORDER BY uuid DESC
+    </select>
+    <insert id="insert" parameterType="com.spring.laboratory.Entity.RepairLab">
+        insert into
+        repairlab(uuid,door_number,repair_item,fault_phenomenon,student_name,phone_number,repair_status)
+        values
+        (replace(uuid(), '-', ''),#{doorNumber},#{repairItem},#{faultPhenomenon},#{studentName},#{phoneNumber},#{repairStatus})
+    </insert>
+    <update id="updatebyuuid" parameterType="com.spring.laboratory.Entity.RepairLab">
+        UPDATE repairlab
+        <set>
+            <if test="repairItem!=null">repair_item=#{repairItem},</if>
+            <if test="faultPhenomenon!=null">fault_phenomenon=#{faultPhenomenon},</if>
+            <if test="studentName!=null">student_name=#{studentName},</if>
+            <if test="phoneNumber!=null">phone_number=#{phoneNumber},</if>
+            <if test="repairStatus!=null">repair_status=#{repairStatus}</if>
+            WHERE uuid=#{uuid}
+        </set>
+    </update>
+    <delete id="deleteall" parameterType="com.spring.laboratory.Entity.RepairLab">
+        DELETE FROM repairlab
+    </delete>
+    <delete id="deletebyuuid" parameterType="java.lang.String">
+        DELETE
+        FROM repairlab
+        WHERE uuid=#{uuid}
+    </delete>
+    <delete id="batchdeleteuuid" parameterType="java.lang.String">
+        delete
+        FROM repairlab
+        where uuid in
+        <foreach collection="array" item="uuid" open="(" separator="," close=")">
+            #{uuid}
+        </foreach>
+    </delete>
+</mapper>

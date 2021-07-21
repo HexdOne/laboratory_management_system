@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.spring.laboratory.Mapper.LabManagementMapper" >
+
+    <select id="query" resultType="com.spring.laboratory.Entity.LabManagement">
+        SELECT *
+        FROM labmanagement
+        ORDER BY door_number ASC
+    </select>
+    <select id="queryall" resultType="com.spring.laboratory.Entity.LabManagement">
+        SELECT *
+        FROM labmanagement
+        ORDER BY door_number ASC
+    </select>
+    <select id="querylist" resultType="Map">
+        UPDATE labmanagement
+        set
+            computer_number=(
+                SELECT count(*)
+                FROM equipmentmanagement
+                WHERE equipment_name='电脑'
+                GROUP BY door_number
+                HAVING door_number=labmanagement.door_number
+            ),
+            available_computer=(
+                SELECT count(*)
+                FROM equipmentmanagement
+                WHERE equipment_name='电脑' AND equipment_status='正常'
+                GROUP BY door_number
+                HAVING door_number=labmanagement.door_number
+            );
+        SELECT equipment_status AS name,count(*) AS value
+        FROM equipmentmanagement
+        GROUP BY equipment_status
+    </select>
+    <select id="querybydoornumber" resultType="com.spring.laboratory.Entity.LabManagement">
+        SELECT *
+        FROM labmanagement
+        WHERE door_number=#{doorNumber}
+    </select>
+    <select id="queryfuzzy" resultType="com.spring.laboratory.Entity.LabManagement" parameterType="java.lang.String">
+        SELECT *
+        FROM labmanagement
+        WHERE CONCAT(IFNULL(door_number,''),IFNULL(lab_name,''),IFNULL(lab_type,''),
+        IFNULL(department,''),IFNULL(computer_number,''),IFNULL(available_computer,''),
+        IFNULL(lab_manager,''),IFNULL(phone_number,''),IFNULL(lab_introduction,''),
+        IFNULL(software,''),IFNULL(configuration,''))
+        LIKE CONCAT(CONCAT('%',#{doorNumber}),'%')
+    </select>
+    <insert id="insert" parameterType="com.spring.laboratory.Entity.LabManagement">
+        insert into
+        labmanagement(uuid,door_number,lab_name,lab_type,department,computer_number,available_computer,lab_manager,phone_number,lab_introduction,software,configuration)
+        values
+        (replace(uuid(), '-', ''),#{doorNumber},#{labName},#{labType},#{department},#{computerNumber},#{availableComputer},#{labManager},#{phoneNumber},#{labIntroduction},#{software},#{configuration})
+    </insert>
+    <update id="update" parameterType="com.spring.laboratory.Entity.LabManagement">
+        UPDATE labmanagement
+        <set>
+            <if test="doorNumber!=null">door_number=#{doorNumber},</if>
+            <if test="labName!=null">lab_name=#{labName},</if>
+            <if test="labType!=null">lab_type=#{labType},</if>
+            <if test="department!=null">department=#{department},</if>
+            <if test="computerNumber!=null">computer_number=#{computerNumber},</if>
+            <if test="availableComputer!=null">available_computer=#{availableComputer},</if>
+            <if test="labManager!=null">lab_manager=#{labManager},</if>
+            <if test="phoneNumber!=null">phone_number=#{phoneNumber},</if>
+            <if test="labIntroduction!=null">lab_introduction=#{labIntroduction},</if>
+            <if test="software!=null">software=#{software},</if>
+            <if test="configuration!=null">configuration=#{configuration}</if>
+            WHERE uuid=#{uuid}
+        </set>
+    </update>
+    <delete id="batchdeleteuuid" parameterType="java.lang.String">
+        delete
+        FROM labmanagement
+        where uuid in
+        <foreach collection="array" item="uuid" open="(" separator="," close=")">
+            #{uuid}
+        </foreach>
+    </delete>
+    <delete id="deletebyuuid" parameterType="java.lang.String">
+        DELETE
+        FROM labmanagement
+        WHERE uuid=#{uuid}
+    </delete>
+    <delete id="deleteall" parameterType="com.spring.laboratory.Entity.LabManagement">
+        DELETE FROM labmanagement
+    </delete>
+</mapper>

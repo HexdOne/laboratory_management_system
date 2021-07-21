@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.spring.laboratory.Mapper.RoleMapper">
+    <!--SELECT * FROM user_info WHERE username = #{username,jdbcType=VARCHAR}-->
+
+    <!--<resultMap id="userMap" type="com.spring.laboratory.Entity.UserInfo">-->
+    <!--<id property="uId" column="uid"/>-->
+    <!--<result property="username" column="username"/>-->
+    <!--<result property="name" column="name"/>-->
+    <!--<result property="password" column="password"/>-->
+    <!--<result property="salt" column="salt"/>-->
+    <!--<result property="state" column="state"/>-->
+    <!--<collection property="roleList" ofType="com.spring.laboratory.Entity.Role">-->
+    <!--<id column="id" property="id"/>-->
+    <!--<result property="role" column="role"/>-->
+    <!--<result property="descripton" column="descripton"/>-->
+    <!--<result property="available" column="available"/>-->
+
+    <!--</collection>-->
+    <!--</resultMap>-->
+    <select id="queryroleByusername" resultType="com.spring.laboratory.Entity.Role">
+
+    select *
+    from user_info join sys_user_role on sys_user_role.uid=user_info.uid join sys_role
+    on sys_user_role.role_id=sys_role.id join sys_role_permission on sys_role_permission.role_id=sys_role.id
+    join sys_permission on sys_permission.id=sys_role_permission.permission_id
+    where user_info.username=#{username}
+    </select>
+</mapper>

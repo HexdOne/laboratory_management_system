@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.spring.laboratory.Mapper.RepairManagementMapper" >
+
+    <select id="query" resultType="com.spring.laboratory.Entity.RepairManagement">
+        SELECT *
+        FROM repairmanagement
+        ORDER BY uuid DESC
+    </select>
+    <select id="querybydoornumber" resultType="com.spring.laboratory.Entity.RepairManagement">
+        SELECT *
+        FROM repairmanagement
+        WHERE door_number=#{doorNumber}
+        ORDER BY uuid DESC
+    </select>
+    <select id="queryequipmentid" resultType="Map" parameterType="com.spring.laboratory.Entity.EquipmentManagement">
+        SELECT equipment_id
+        FROM equipmentmanagement
+        WHERE door_number=#{doorNumber} AND equipment_name=#{equipmentName}
+    </select>
+    <select id="queryfuzzy" resultType="com.spring.laboratory.Entity.EquipmentManagement" parameterType="java.lang.String">
+        SELECT *
+        FROM repairmanagement
+        WHERE CONCAT(IFNULL(door_number,''),IFNULL(repair_person,''),IFNULL(equipment_name,''),
+        IFNULL(repair_method,''),IFNULL(repair_result,''),IFNULL(repair_time,''))
+        LIKE CONCAT(CONCAT('%',#{doorNumber}),'%')
+        ORDER BY uuid DESC
+    </select>
+    <insert id="insert" parameterType="com.spring.laboratory.Entity.RepairManagement">
+        INSERT INTO
+        repairmanagement(uuid,repair_person,door_number,equipment_id,equipment_name,repair_method,repair_result,repair_time)
+        VALUES
+        (replace(uuid(), '-', ''),#{repairPerson},#{doorNumber},#{equipmentId},#{equipmentName},#{repairMethod},#{repairResult},now())
+    </insert>
+    <delete id="deleteall" parameterType="com.spring.laboratory.Entity.RepairManagement">
+        DELETE FROM repairmanagement
+    </delete>
+    <delete id="deletebyuuid" parameterType="java.lang.String">
+        DELETE
+        FROM repairmanagement
+        WHERE uuid=#{uuid}
+    </delete>
+    <delete id="batchdeleteuuid" parameterType="java.lang.String">
+        delete
+        FROM repairmanagement
+        where uuid in
+        <foreach collection="array" item="uuid" open="(" separator="," close=")">
+            #{uuid}
+        </foreach>
+    </delete>
+</mapper>

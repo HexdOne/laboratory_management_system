@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.spring.laboratory.Mapper.LoginMapper">
+    <!--SELECT * FROM user_info WHERE username = #{username,jdbcType=VARCHAR}-->
+
+   <!--<resultMap id="userMap" type="com.spring.laboratory.Entity.UserInfo">-->
+    <!--<id property="uId" column="uid"/>-->
+    <!--<result property="username" column="username"/>-->
+    <!--<result property="name" column="name"/>-->
+    <!--<result property="password" column="password"/>-->
+    <!--<result property="salt" column="salt"/>-->
+    <!--<result property="state" column="state"/>-->
+   <!--<collection property="roleList" ofType="com.spring.laboratory.Entity.Role">-->
+    <!--<id column="id" property="id"/>-->
+    <!--<result property="role" column="role"/>-->
+    <!--<result property="descripton" column="descripton"/>-->
+    <!--<result property="available" column="available"/>-->
+
+    <!--</collection>-->
+   <!--</resultMap>-->
+    <select id="queryInfoByUsername" resultType="com.spring.laboratory.Entity.UserInfo">
+        SELECT * FROM user_info WHERE username = #{username,jdbcType=VARCHAR}
+    </select>
+    <insert id="register" parameterType="com.spring.laboratory.Entity.UserInfo" useGeneratedKeys="true"
+             keyProperty="student_id">
+        insert  into
+        user_info(username,password,salt,email,student_id)
+        values (#{username},#{password},#{salt},#{email},#{studentId})
+    </insert>
+    
+    <insert id="saveRole" parameterType="Map">
+        insert into sys_user_role
+        (sid,role_id)
+        values
+            <foreach collection="roleIds" item="id" separator=",">
+            (#{sid},#{id})
+        </foreach>
+    </insert>
+    <update id="modifyInformation" parameterType="com.spring.laboratory.Entity.UserInfo">
+        update user_info
+        set
+        tel=#{tel},name=#{name}
+        where student_id=#{studentId}
+    </update>
+
+    <update id="changePassword" parameterType="com.spring.laboratory.Entity.UserInfo">
+         update user_info
+        set
+        password=#{password}
+        where student_id=#{studentId}
+    </update>
+ <!--找回密码-->
+    <update id="retrievePassword" parameterType="com.spring.laboratory.Entity.UserInfo">
+        update user_info
+        set
+        password=#{password}
+        where student_id=#{studentId}and email=#{email}
+    </update>
+    <select id="queryStudentAndEmail" parameterType="Map"  resultType="Integer">
+        select count(*)
+        from user_info
+        where student_id=#{studentId} and email=#{email}
+    </select>
+    <!--查看是否有这个学号（工号）-->
+    <select id="queryStudentid" resultType="Integer">
+        select count(student_id)
+        from user_info
+        where student_id=#{studentId}
+    </select>
+    <!--查看是否有这个邮箱-->
+    <select id="queryEmail" resultType="Integer">
+        select count(email)
+        from user_info
+        where email=#{email}
+    </select>
+    <select id="queryUser" parameterType="Map" resultType="com.spring.laboratory.Entity.UserInfo">
+        select *
+        from user_info
+        where student_id=#{studentId} and email=#{email}
+    </select>
+    <!--查找数据库中是否有相同的用户名-->
+    <select id="queryUsername" resultType="Integer">
+        select count(username) from user_info
+        where username=#{username}
+    </select>
+
+</mapper>

@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.spring.laboratory.Mapper.RepairEquipmentMapper" >
+    <select id="query" resultType="com.spring.laboratory.Entity.RepairEquipment">
+        SELECT *
+        FROM repairequipment
+        ORDER BY uuid DESC
+    </select>
+    <select id="querydoornumber" resultType="Map">
+        SELECT door_number,uuid,lab_name
+        FROM labmanagement
+        ORDER BY door_number ASC
+    </select>
+    <select id="queryequipmentname" resultType="Map" parameterType="String">
+        SELECT DISTINCT equipment_name
+        FROM equipmentmanagement
+        WHERE door_number=#{doorNumber}
+    </select>
+    <select id="querybydoornumber" resultType="com.spring.laboratory.Entity.RepairEquipment">
+        SELECT *
+        FROM repairequipment
+        WHERE door_number=#{doorNumber}
+        ORDER BY uuid DESC
+    </select>
+    <select id="queryfuzzy" resultType="com.spring.laboratory.Entity.RepairEquipment" parameterType="java.lang.String">
+        SELECT *
+        FROM repairequipment
+        WHERE CONCAT(IFNULL(door_number,''),IFNULL(equipment_id,''),IFNULL(equipment_name,''),
+        IFNULL(fault_phenomenon,''),IFNULL(student_name,''),IFNULL(phone_number,''),IFNULL(submit_time,''),IFNULL(repair_status,''))
+        LIKE CONCAT(CONCAT('%',#{doorNumber}),'%')
+        ORDER BY uuid DESC
+    </select>
+    <insert id="insert" parameterType="com.spring.laboratory.Entity.RepairEquipment">
+        insert into
+        repairequipment(uuid,door_number,equipment_name,fault_phenomenon,student_name,phone_number,submit_time,repair_status)
+        values
+        (replace(uuid(), '-', ''),#{doorNumber},#{equipmentName},#{faultPhenomenon},#{studentName},#{phoneNumber},now(),#{repairStatus})
+    </insert>
+    <update id="updatebyuuid" parameterType="com.spring.laboratory.Entity.RepairEquipment">
+        UPDATE repairequipment
+        SET repair_status=#{repairStatus}
+        WHERE uuid=#{uuid}
+    </update>
+    <delete id="deleteall" parameterType="com.spring.laboratory.Entity.RepairEquipment">
+        DELETE FROM repairequipment
+    </delete>
+    <delete id="deletebyuuid" parameterType="java.lang.String">
+        DELETE
+        FROM repairequipment
+        WHERE uuid=#{uuid}
+    </delete>
+    <delete id="batchdeleteuuid" parameterType="java.lang.String">
+        delete
+        FROM repairequipment
+        where uuid in
+        <foreach collection="array" item="uuid" open="(" separator="," close=")">
+            #{uuid}
+        </foreach>
+    </delete>
+</mapper>

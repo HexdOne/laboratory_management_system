@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.spring.laboratory.Mapper.HygieneManagementMapper" >
+
+    <select id="query" resultType="com.spring.laboratory.Entity.HygieneManagement">
+        SELECT *
+        FROM hygienemanagement
+        ORDER BY uuid DESC
+    </select>
+    <select id="querydoornumber" resultType="Map">
+        SELECT DISTINCT door_number,lab_name,uuid
+        FROM labmanagement
+        ORDER BY door_number ASC
+    </select>
+    <select id="queryfuzzy" resultType="com.spring.laboratory.Entity.HygieneManagement" parameterType="java.lang.String">
+        SELECT *
+        FROM hygienemanagement
+        WHERE CONCAT(IFNULL(hygiene_person,''),IFNULL(door_number,''),IFNULL(hygiene_result,''),IFNULL(hygiene_time,''))
+        LIKE CONCAT(CONCAT('%',#{doorNumber}),'%')
+        ORDER BY uuid DESC
+    </select>
+    <insert id="insertHygiene" parameterType="com.spring.laboratory.Entity.HygieneManagement">
+        INSERT INTO
+        hygienemanagement(uuid,hygiene_person,door_number,hygiene_result,remark,hygiene_time)
+        VALUES
+        (replace(uuid(), '-', ''),#{hygienePerson},#{doorNumber},#{hygieneResult},#{remark},now())
+    </insert>
+    <update id="updatebyuuid" parameterType="com.spring.laboratory.Entity.HygieneManagement">
+        UPDATE hygienemanagement
+        <set>
+            <if test="hygienePerson!=null">hygiene_person=#{hygienePerson},</if>
+            <if test="hygieneResult!=null">hygiene_result=#{hygieneResult},</if>
+            WHERE uuid=#{uuid}
+        </set>
+    </update>
+    <delete id="deleteall" parameterType="com.spring.laboratory.Entity.HygieneManagement">
+        DELETE FROM hygienemanagement
+    </delete>
+    <delete id="deletebyuuid" parameterType="java.lang.String">
+        DELETE
+        FROM hygienemanagement
+        WHERE uuid=#{uuid}
+    </delete>
+    <delete id="batchdeleteuuid" parameterType="java.lang.String">
+        delete
+        FROM hygienemanagement
+        where uuid in
+        <foreach collection="array" item="uuid" open="(" separator="," close=")">
+            #{uuid}
+        </foreach>
+    </delete>
+</mapper>

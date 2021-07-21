@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.spring.laboratory.Mapper.EquipmentManagementMapper" >
+
+    <select id="query" resultType="com.spring.laboratory.Entity.EquipmentManagement">
+        SELECT *
+        FROM equipmentmanagement
+        ORDER BY door_number ASC,uuid DESC
+    </select>
+    <select id="queryall" resultType="com.spring.laboratory.Entity.EquipmentManagement">
+        SELECT *
+        FROM equipmentmanagement
+        ORDER BY door_number ASC,uuid DESC
+    </select>
+    <select id="querydoornumber" resultType="Map">
+        SELECT uuid,door_number,lab_name
+        FROM labmanagement
+        ORDER BY door_number ASC
+    </select>
+    <select id="querybydoornumber" resultType="com.spring.laboratory.Entity.EquipmentManagement">
+        SELECT *
+        FROM equipmentmanagement
+        WHERE door_number=#{doorNumber}
+        ORDER BY uuid DESC
+    </select>
+    <select id="queryequipmentbrand" resultType="Map">
+        SELECT equipment_brand AS name,COUNT(*) AS value
+        FROM equipmentmanagement
+        WHERE equipment_name='电脑'
+        GROUP BY equipment_brand
+    </select>
+    <select id="queryfuzzy" resultType="com.spring.laboratory.Entity.EquipmentManagement" parameterType="java.lang.String">
+        SELECT *
+        FROM equipmentmanagement
+        WHERE CONCAT(IFNULL(door_number,''),IFNULL(equipment_id,''),IFNULL(equipment_name,''),
+                     IFNULL(equipment_brand,''),IFNULL(equipment_model,''),IFNULL(parameter_information,''),
+                     IFNULL(supplier,''),IFNULL(price,''),IFNULL(equipment_status,''))
+        LIKE CONCAT(CONCAT('%',#{doorNumber}),'%')
+        ORDER BY door_number ASC,uuid DESC
+    </select>
+    <insert id="insertEquipment" parameterType="com.spring.laboratory.Entity.EquipmentManagement">
+        INSERT INTO
+        equipmentmanagement(uuid,door_number,equipment_id,equipment_name,equipment_brand,equipment_model,parameter_information,supplier,price,equipment_status)
+        VALUES
+        (replace(uuid(), '-', ''),#{doorNumber},#{equipmentId},#{equipmentName},#{equipmentBrand},#{equipmentModel},#{parameterInformation},#{supplier},#{price},#{equipmentStatus})
+    </insert>
+    <update id="updatebydoornumber" parameterType="com.spring.laboratory.Entity.EquipmentManagement">
+        UPDATE equipmentmanagement
+        <set>
+            <if test="equipmentId!=null">equipment_id=#{equipmentId},</if>
+            <if test="equipmentName!=null">equipment_name=#{equipmentName},</if>
+            <if test="equipmentBrand!=null">equipment_brand=#{equipmentBrand},</if>
+            <if test="equipmentModel!=null">equipment_model=#{equipmentModel},</if>
+            <if test="parameterInformation!=null">parameter_information=#{parameterInformation},</if>
+            <if test="supplier!=null">supplier=#{supplier},</if>
+            <if test="price!=null">price=#{price},</if>
+            <if test="equipmentStatus!=null">equipment_status=#{equipmentStatus}</if>
+            WHERE uuid=#{uuid}
+        </set>
+    </update>
+
+
+    <update id="updatestatus" parameterType="com.spring.laboratory.Entity.EquipmentManagement">
+        UPDATE equipmentmanagement
+        SET equipment_status=#{equipmentStatus}
+        WHERE door_number=#{doorNumber} AND equipment_id=#{equipmentId} AND equipment_name=#{equipmentName}
+    </update>
+    <delete id="deleteall" parameterType="com.spring.laboratory.Entity.EquipmentManagement">
+        DELETE FROM equipmentmanagement
+    </delete>
+    <delete id="deletebyuuid" parameterType="com.spring.laboratory.Entity.EquipmentManagement">
+        DELETE
+        FROM equipmentmanagement
+        WHERE uuid=#{uuid}
+    </delete>
+    <delete id="batchdeleteuuid" parameterType="java.lang.String">
+        delete
+        FROM equipmentmanagement
+        where uuid in
+        <foreach collection="array" item="uuid" open="(" separator="," close=")">
+            #{uuid}
+        </foreach>
+    </delete>
+    <select id="querybyid" resultType="Integer">
+        SELECT count(*) FROM equipmentmanagement WHERE equipment_id=#{equipmentId}
+    </select>
+    <update id="updatebyEquipmentId" parameterType="com.spring.laboratory.Entity.EquipmentManagement">
+        UPDATE equipmentmanagement
+        <set>
+            <if test="doorNumber!=null">door_number=#{doorNumber},</if>
+            <if test="equipmentName!=null">equipment_name=#{equipmentName},</if>
+            <if test="equipmentBrand!=null">equipment_brand=#{equipmentBrand},</if>
+            <if test="equipmentModel!=null">equipment_model=#{equipmentModel},</if>
+            <if test="parameterInformation!=null">parameter_information=#{parameterInformation},</if>
+            <if test="supplier!=null">supplier=#{supplier},</if>
+            <if test="price!=null">price=#{price},</if>
+            <if test="equipmentStatus!=null">equipment_status=#{equipmentStatus}</if>
+            WHERE equipment_id=#{equipmentId}
+        </set>
+
+    </update>
+</mapper>
